@@ -24,7 +24,7 @@ $json = [];
   if(isset($_POST['form'])) {
     foreach ($_POST['form'] as $item) {
       if($item['type'] == 'button') {
-        $innerhtml .= file_get_contents("templates/button.html");
+        $innerhtml .= file_get_contents("templates/button_".$item['value'][2].".html");
         $innerhtml = str_replace('[url]', $item['value'][0], $innerhtml);
         $innerhtml = str_replace('[texto]', $item['value'][1], $innerhtml);
       } else if($item['type'] == 'image') {
@@ -33,11 +33,13 @@ $json = [];
       } else if($item['type'] == 'spaciator') {
         $innerhtml .= file_get_contents("templates/spaciator.html");
         $innerhtml = str_replace('[size]', $item['value'][0], $innerhtml);
+        $innerhtml = str_replace('[color]', $item['value'][1], $innerhtml);
       } else if($item['type'] == 'title') {
         $innerhtml .= file_get_contents("templates/title-".$item['value'][0]."_".$lang.".html");
       } else if($item['type'] == 'item') {
         if($item['value'][5] == 'featured')  $temp = file_get_contents("templates/featureditem_".$lang.".html");
         else if($item['value'][5] == 'event')  $temp = file_get_contents("templates/event_".$lang.".html");
+        else if($item['value'][5] == 'case')  $temp = file_get_contents("templates/case_".$lang.".html");
         else $temp = file_get_contents("templates/item_".$lang.".html");
         $temp = str_replace('[title]', $item['value'][0], $temp);
         if($item['value'][1] != '') {
@@ -65,7 +67,9 @@ $json = [];
     foreach(explode(",", $_POST['email']) as $email) {
       $email = chop($email);
       if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        if(!mail($email, "[TEST] Boletín BDIH", $html."https://pruebas.enuttisworking.com/NUEVO-BOLETIN-BDIH/html/".$file, "Content-Type: text/html; charset=UTF-8\r\n")) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
+        if(!mail($email, "Prueba: Activos Tecnológicos BDIH. Antes de invertir en tecnología...", 
+          $html."<a href=\"http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."/html/".$file."\">Descargar</a>", 
+          "Content-Type: text/html; charset=UTF-8\r\n")) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
       } else if(!isset($json['status'])) $json = ['status' => 'danger', 'text' => 'Email incorrecto "'.$email.'".'];
     }
     if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter enviada correctamente a: '.$_POST['email']];
