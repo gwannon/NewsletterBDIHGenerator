@@ -64,18 +64,65 @@ $json = [];
   if($_POST['action'] == 'send') {
     $file = date("Y-m-d_H_i_s").".html";
     file_put_contents("./html/".$file, $html);
-    foreach(explode(",", $_POST['email']) as $email) {
+    /*foreach(explode(",", $_POST['email']) as $email) {
       $email = chop($email);
       if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
         if(!mail($email, "Prueba: Activos Tecnológicos BDIH. Antes de invertir en tecnología...", 
           $html."<a href=\"http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."/html/".$file."\">Descargar</a>", 
           "Content-Type: text/html; charset=UTF-8\r\n")) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
       } else if(!isset($json['status'])) $json = ['status' => 'danger', 'text' => 'Email incorrecto "'.$email.'".'];
+    }*/
+    foreach(explode(",", $_POST['email']) as $email) {
+    	$email = chop($email);
+    	if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    		if(!sendTest($email, "Activos Tecnológicos BDIH. Antes de invertir en tecnología...", $file)) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
+    	} else if(!isset($json['status'])) $json = ['status' => 'danger', 'text' => 'Email incorrecto "'.$email.'".'];
     }
-    if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter enviada correctamente a: '.$_POST['email']];
+    
+    if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter enviada correctamente aaaaa: '.$_POST['email']];
   }
 } else if(isset($_POST['action']) && $_POST['action'] == 'save' && isset($_POST['form'])) {
   file_put_contents("./saves/".(isset($_POST['namesave']) && $_POST['namesave'] != '' ? $_POST['namesave'] : 'Guardado')."-".$_POST['lang']."_".date("Y-m-d_His").".json", json_encode($_POST['form']));
   if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter guardada correctamente.'];
 }
 echo json_encode($json);
+
+
+
+
+
+
+function sendTest($emails, $title, $file) {
+	include_once(dirname(__FILE__)."/../phpmailer/PHPMailerAutoload.php");	
+	$emails = explode(",", $emails);
+	$title = "PRUEBA: ".$title;
+  $date = date("Y-m-d H:i");
+  $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]".str_replace(basename($_SERVER['PHP_SELF']), "", $_SERVER[REQUEST_URI]);
+  $content = file_get_contents("temp.html")."<br/><br><a href='".$actual_link."html/".$file."'>DESCARGAR</a>";
+  $content = str_replace("%SENDER-INFO-SINGLELINE%", "SPRI – Agencia Vasca de Desarrollo Empresarial, Alameda Urquijo, 36 - 4ª Plta., Edificio Plaza Bizkaia, 48011 BILBAO, Bi, España ", $content);
+	$mail = new PHPMailer();
+	$mail->IsSMTP();
+	$mail->SMTPDebug  = false;
+	$mail->SMTPAuth   = false; 
+	$mail->SMTPAutoTLS = false;
+	$mail->SMTPSecure = false;
+	$mail->CharSet = 'UTF-8';
+	$mail->Host = "192.168.10.11";
+	$mail->Port = 25;
+	$mail->SetFrom('boletin@acapi.spri.eus', 'Hacer boletín BDHI');
+	//$mail->AddReplyTo($replyto);
+	$mail->Subject = $title;
+	$mail->MsgHTML($content);
+	foreach ($emails as $email) {
+		$mail->AddAddress($email);
+	}
+	
+	if($mail->Send()) return true;
+	else {
+		/*$arrResult['response'] = 'error';
+		echo "There was a problem sending the form.: " . $mail->ErrorInfo;*/
+		return false;
+	}
+}
+
+
