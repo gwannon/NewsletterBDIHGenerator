@@ -112,11 +112,11 @@
 		function loadItems() {
 			$("#newitemcontent option").remove(); 
 			$("#newitemcontent").append('<option val="-1">-- Noticia en blanco --</option>');
-			$.getJSON( "https://pruebas.enuttisworking.com/NUEVO-BOLETIN-BDIH/ajax.php?action=items&lang="+$('select#lang').val(), function( data ) {
+			$.getJSON( "./ajax.php?action=items&lang="+$('select#lang').val(), function( data ) {
 				
 				$.each( data, function( key, val ) {
 					items[key] = val;
-					$("#newitemcontent").append('<option value="'+key+'">'+val.title+'</option>');
+					$("#newitemcontent").append('<option value="'+key+'">'+val.type+" - "+val.date+" - "+val.title+'</option>');
 				});
 			});
 		}

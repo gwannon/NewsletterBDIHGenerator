@@ -5,18 +5,53 @@ header('Content-Type: application/json; charset=utf-8');
 $json = [];
  if(isset($_GET['action']) && $_GET['action'] == 'items') {
   $lang = strip_tags($_GET['lang']);
-  $items = json_decode(file_get_contents("https://bdih.spri.eus/".($lang != 'eu' ? $lang."/" : "")."wp-json/wp/v2/posts?_embed&per_page=100"));
+
+  /*$stream_context = stream_context_create([
+    "ssl" => [
+      "verify_peer" => false,
+      "verify_peer_name" => false
+    ]
+  ]);*/
+
+
+  $items = json_decode(file_get_contents("https://bdih.spri.eus/".($lang != 'eu' ? $lang."/" : "").
+"wp-json/wp/v2/posts?_embed&per_page=100"/*, false, $stream_context*/));
   foreach ($items as $item) {
     if(isset($item->_embedded->{'wp:featuredmedia'}[0])) {
       $featuredimage = $item->_embedded->{'wp:featuredmedia'}[0]->media_details->sizes->full->source_url;
     } else $featuredimage = "";
-    $json[$item->id] = [
+    $json[] = [
+      'type' => 'Noticia',
+      'id' => $item->id,
+      "timestamp" => strtotime($item->date),
+      "date" => date("Y-m-d", strtotime($item->date)),
       'title' => $item->title->rendered,
       'url' => $item->link,
       'image' => $featuredimage,
       'description' => strip_tags($item->excerpt->rendered),
     ];
   }
+
+  $items = json_decode(file_get_contents("https://www.spri.eus/ejson/casos-uso/?lang=".$lang.
+"&per_page=100"/*, false, $stream_context*/));
+  foreach ($items as $item) {
+    list($dia, $mes, $ano) = explode("/", $item->fecha_caso);
+    $json[] = [
+      'type' => 'Caso de uso',
+      'id' => $item->id,
+      "timestamp" => strtotime($ano."/".$mes."/".$dia),
+      "date" =>  date("Y-m-d", strtotime($ano."/".$mes."/".$dia)),
+      'title' => $item->title,
+      'url' => ($lang == 'es' ? "https://bdih.spri.eus/es/casos-de-uso/" : "https://bdih.spri.eus/erabilera-kasuak/").basename($item->url_spri),
+      'image' => $item->img,
+      'description' => strip_tags($item->extracto),
+    ];
+  }
+
+  $keys = array_column($json, 'timestamp');
+  array_multisort($keys, SORT_DESC, $json);
+
+
 } else if(isset($_POST['action']) && ($_POST['action'] == 'generate' || $_POST['action'] == 'send')) {
   $lang = strip_tags($_POST['lang']);
   $html = file_get_contents("templates/main_".$lang.".html");
@@ -119,10 +154,12 @@ function sendTest($emails, $title, $file) {
 	
 	if($mail->Send()) return true;
 	else {
-		/*$arrResult['response'] = 'error';
-		echo "There was a problem sending the form.: " . $mail->ErrorInfo;*/
 		return false;
 	}
 }
 
+
+function cmp($a, $b) {
+  return ($a->timestamp > $b->timestamp) ? -1 : 1;
+}
 
