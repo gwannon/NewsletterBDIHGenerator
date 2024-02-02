@@ -6,16 +6,16 @@ $json = [];
  if(isset($_GET['action']) && $_GET['action'] == 'items') {
   $lang = strip_tags($_GET['lang']);
 
-  $stream_context = stream_context_create([
+  /*$stream_context = stream_context_create([
     "ssl" => [
       "verify_peer" => false,
       "verify_peer_name" => false
     ]
-  ]);
+  ]);*/
 
 
   $items = json_decode(file_get_contents("https://bdih.spri.eus/".($lang != 'eu' ? $lang."/" : "").
-"wp-json/wp/v2/posts?_embed&per_page=100", false, $stream_context));
+"wp-json/wp/v2/posts?_embed&per_page=100"/*, false, $stream_context*/));
   foreach ($items as $item) {
     if(isset($item->_embedded->{'wp:featuredmedia'}[0])) {
       $featuredimage = $item->_embedded->{'wp:featuredmedia'}[0]->media_details->sizes->full->source_url;
@@ -33,7 +33,7 @@ $json = [];
   }
 
   $items = json_decode(file_get_contents("https://www.spri.eus/ejson/casos-uso/?lang=".$lang.
-"&per_page=100" , false, $stream_context));
+"&per_page=100"/*, false, $stream_context*/));
   foreach ($items as $item) {
     list($dia, $mes, $ano) = explode("/", $item->fecha_caso);
     $json[] = [
