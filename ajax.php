@@ -117,7 +117,7 @@ $json = [];
     if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter enviada correctamente aaaaa: '.$_POST['email']];
   }
 } else if(isset($_POST['action']) && $_POST['action'] == 'save' && isset($_POST['form'])) {
-  file_put_contents("./saves/".(isset($_POST['namesave']) && $_POST['namesave'] != '' ? $_POST['namesave'] : 'Guardado')."-".$_POST['lang']."_".date("Y-m-d_His").".json", json_encode($_POST['form']));
+  file_put_contents("./saves/".(isset($_POST['namesave']) && $_POST['namesave'] != '' ? $_POST['namesave'] : 'Guardado')."-".$_POST['lang'].".json", json_encode($_POST['form']));
   if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter guardada correctamente.'];
 }
 echo json_encode($json);
