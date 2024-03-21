@@ -311,7 +311,8 @@
 			item = 1;
 			focusDiv = null;
 			$("#form").html('');
-			$.getJSON( "./saves/"+$("#loadfile").val(), function( data ) {
+			var date = new Date().toJSON();
+			$.getJSON( "./saves/"+$("#loadfile").val()+"?hash="+date, function( data ) {
 				$.each( data, function( key, val ) {
 					var currentitem = item;
 					$("#new"+val.type).click();
@@ -321,6 +322,7 @@
 						});
 					}
 				});
+				regeneratePreview();
 			});
 		});
 	</script>
