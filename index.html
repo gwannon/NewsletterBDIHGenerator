@@ -129,7 +129,7 @@
 			$("#loadfile option").remove(); 
 			$.getJSON( "./saves/?hash="+date+"&lang="+$('select#lang').val(), function( data ) {
 				$.each( data, function( key, val ) {
-					$("#loadfile").append('<option value="'+val+'">'+val.replace("-", " ").replace("-"+$('select#lang').val()+".json", "").replace("_", " ")+'</option>');
+					$("#loadfile").append('<option value="'+val+'">'+val.replace("-"+$('select#lang').val()+".json", "").replace("-", " ").replace("_", " ")+'</option>');
 				});
 			});
 		}
@@ -188,7 +188,6 @@
 		$("#newitem").click(function(e) {
 			$("div").not(this).removeClass("focus");
 			itemid = $("#newitemcontent").val();
-			console.log(itemid);
 			var append = "<div id='item-"+item+"' data-type='item' class='focus col-12 bg-success p-2 mb-2 pe-5' tabindex='0'>"+
 				"<input type='text' placeholder='Título' class='form-control form-control-sm mb-1' value='"+(itemid > 0 ? items[itemid].title : "")+"'>"+
 				"<input type='text' placeholder='Subtítulo' class='form-control form-control-sm mb-1' value=''>"+
@@ -310,18 +309,18 @@
 
 		$("#load").click(function(e) {
 			item = 1;
+			focusDiv = null;
 			$("#form").html('');
 			$.getJSON( "./saves/"+$("#loadfile").val(), function( data ) {
 				$.each( data, function( key, val ) {
+					var currentitem = item;
 					$("#new"+val.type).click();
 					if(val.value) {
-						var $currentitem = item - 1;
-						$("#item-"+$currentitem+" input, #item-"+$currentitem+" select, #item-"+$currentitem+" textarea").each(function(index) {
+						$("#item-"+currentitem+" input, #item-"+currentitem+" select, #item-"+currentitem+" textarea").each(function(index) {
 							$(this).val(val.value[index]);
 						});
 					}
 				});
-				regeneratePreview();
 			});
 		});
 	</script>
