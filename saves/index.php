@@ -12,7 +12,7 @@ function scan_dir($dir) {
   $files = array();    
   foreach (scandir($dir) as $file) {
       if (in_array($file, $ignored)) continue;
-      if(preg_match("/-".$_GET['lang']."/", $file)) $files[$file] = filemtime($dir . '/' . $file);
+      if(preg_match("/-".$_GET['lang'].".json/", $file)) $files[$file] = filemtime($dir . '/' . $file);
   }
 
   arsort($files);

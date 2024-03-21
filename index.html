@@ -129,7 +129,7 @@
 			$("#loadfile option").remove(); 
 			$.getJSON( "./saves/?hash="+date+"&lang="+$('select#lang').val(), function( data ) {
 				$.each( data, function( key, val ) {
-					$("#loadfile").append('<option value="'+val+'">'+val.replace("-", " (").replace(".json", "").replace("_", " ")+')</option>');
+					$("#loadfile").append('<option value="'+val+'">'+val.replace("-", " ").replace("-"+$('select#lang').val()+".json", "").replace("_", " ")+'</option>');
 				});
 			});
 		}
