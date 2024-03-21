@@ -99,18 +99,10 @@ $json = [];
   if($_POST['action'] == 'send') {
     $file = date("Y-m-d_H_i_s").".html";
     file_put_contents("./html/".$file, $html);
-    /*foreach(explode(",", $_POST['email']) as $email) {
-      $email = chop($email);
-      if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        if(!mail($email, "Prueba: Activos Tecnológicos BDIH. Antes de invertir en tecnología...", 
-          $html."<a href=\"http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."/html/".$file."\">Descargar</a>", 
-          "Content-Type: text/html; charset=UTF-8\r\n")) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
-      } else if(!isset($json['status'])) $json = ['status' => 'danger', 'text' => 'Email incorrecto "'.$email.'".'];
-    }*/
     foreach(explode(",", $_POST['email']) as $email) {
     	$email = chop($email);
     	if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    		if(!sendTest($email, "Activos Tecnológicos BDIH. Antes de invertir en tecnología...", $file)) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
+    		if(!sendTest($email, ( $lang == 'es' ? "Activos Tecnológicos BDIH. Antes de invertir en tecnología..." : "BDIH aktibo teknologikoak. Teknologian inbertitu aurretik..."), $file)) $json = ['status' => 'danger', 'text' => 'NO se ha podido enviar la newsletter. Inténtelo más tarde.'];
     	} else if(!isset($json['status'])) $json = ['status' => 'danger', 'text' => 'Email incorrecto "'.$email.'".'];
     }
     
