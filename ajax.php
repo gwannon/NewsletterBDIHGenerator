@@ -14,7 +14,7 @@ $json = [];
   ]);*/
 
 
-  $items = json_decode(file_get_contents("https://bdih.spri.eus/".($lang != 'eu' ? $lang."/" : "").
+  $items = json_decode(curlCall("https://bdih.spri.eus/".($lang != 'eu' ? $lang."/" : "").
 "wp-json/wp/v2/posts?_embed&per_page=100"/*, false, $stream_context*/));
   foreach ($items as $item) {
     if(isset($item->_embedded->{'wp:featuredmedia'}[0])) {
@@ -32,7 +32,7 @@ $json = [];
     ];
   }
 
-  $items = json_decode(file_get_contents("https://www.spri.eus/ejson/casos-uso/?lang=".$lang.
+  $items = json_decode(curlCall("https://www.spri.eus/ejson/casos-uso/?lang=".$lang.
 "&per_page=100"/*, false, $stream_context*/));
   foreach ($items as $item) {
     list($dia, $mes, $ano) = explode("/", $item->fecha_caso);
@@ -109,7 +109,7 @@ $json = [];
     if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter enviada correctamente a: '.$_POST['email']];
   }
 } else if(isset($_POST['action']) && $_POST['action'] == 'save' && isset($_POST['form'])) {
-  file_put_contents("./saves/".(isset($_POST['namesave']) && $_POST['namesave'] != '' ? $_POST['namesave'] : 'Guardado')."-".$_POST['lang'].".json", json_encode($_POST['form']));
+  file_put_contents("./saves/".(isset($_POST['namesave']) && $_POST['namesave'] != '' ? str_replace(["/"], "-", $_POST['namesave']) : 'Guardado')."-".$_POST['lang'].".json", json_encode($_POST['form']));
   if(!isset($json['status'])) $json = ['status' => 'success', 'text' => 'Newsletter guardada correctamente.'];
 }
 echo json_encode($json);
@@ -155,3 +155,35 @@ function cmp($a, $b) {
   return ($a->timestamp > $b->timestamp) ? -1 : 1;
 }
 
+function curlCall($url) {
+ 
+  $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3d3dy5zcHJpLmV1cyIsImlhdCI6MTYzNDA1MTkwNiwibmJmIjoxNjM0MDUxOTA2LCJleHAiOjE2MzQ2NTY3MDYsImRhdGEiOnsidXNlciI6eyJpZCI6IjEyMTIifX19.BjuqUsK5BTntIqwJQBEhNh_LLQFDmhuYaQCmCpjz8d4';
+  $url = $url.(preg_match("/\?/", $url) ? "&" : "?")."token=".$token;
+  // Construir los datos de la solicitud
+  // Inicializar cURL
+  $ch = curl_init();
+  // Establecer la URL y otros parámetros
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  // Desactivar la verificación SSL
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+  // Ejecutar la solicitud
+  $response = curl_exec($ch);
+
+  // Verificar si ocurrió algún error
+  /*if(curl_errno($ch)) {
+    $error_message = curl_error($ch);
+    curl_close($ch);
+    echo "Error: $error_message"; die;
+  }*/
+
+  // Cerrar cURL
+  curl_close($ch);
+  /*echo "<pre>";
+  print_r($response);
+  echo "</pre>"; die;*/
+  return  $response;
+}
